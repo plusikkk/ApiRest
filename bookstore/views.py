@@ -1,5 +1,6 @@
 from django.db.models import ProtectedError
 from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from bookstore.models import Book, Author, Publisher
@@ -8,6 +9,11 @@ from django.http import Http404
 
 
 class BooksList(APIView):
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAdminUser()]
+        return [AllowAny()]
+
     def get(self, request):
         books = Book.objects.all()
         serializer = BookSerializer(books, many=True)
@@ -21,6 +27,11 @@ class BooksList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class BookDetail(APIView):
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'DELETE']:
+            return [IsAdminUser()]
+        return [AllowAny()]
+
     def get_object(self, pk):
         try:
             return Book.objects.get(pk=pk)
@@ -46,6 +57,11 @@ class BookDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AuthorsList(APIView):
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAdminUser()]
+        return [AllowAny()]
+
     def get(self, request):
         authors = Author.objects.all()
         serializer = AuthorSerialiser(authors, many=True)
@@ -59,6 +75,11 @@ class AuthorsList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AuthorDetail(APIView):
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'DELETE']:
+            return [IsAdminUser()]
+        return [AllowAny()]
+
     def get_object(self, pk):
         try:
             return Author.objects.get(pk=pk)
@@ -90,6 +111,11 @@ class AuthorDetail(APIView):
             )
 
 class PublishersList(APIView):
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAdminUser()]
+        return [AllowAny()]
+
     def get(self, request):
         publishers = Publisher.objects.all()
         serializer = PublisherSerializer(publishers, many=True)
@@ -103,6 +129,11 @@ class PublishersList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PublisherDetail(APIView):
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'DELETE']:
+            return [IsAdminUser()]
+        return [AllowAny()]
+
     def get_object(self, pk):
         try:
             return Publisher.objects.get(pk=pk)
