@@ -1,6 +1,6 @@
 from django.db.models import ProtectedError
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from bookstore.models import Book, Author, Publisher
@@ -30,7 +30,7 @@ class BookDetail(APIView):
     def get_permissions(self):
         if self.request.method in ['PUT', 'DELETE']:
             return [IsAdminUser()]
-        return [AllowAny()]
+        return [IsAuthenticated()]
 
     def get_object(self, pk):
         try:
@@ -78,7 +78,7 @@ class AuthorDetail(APIView):
     def get_permissions(self):
         if self.request.method in ['PUT', 'DELETE']:
             return [IsAdminUser()]
-        return [AllowAny()]
+        return [IsAuthenticated()]
 
     def get_object(self, pk):
         try:
@@ -132,7 +132,7 @@ class PublisherDetail(APIView):
     def get_permissions(self):
         if self.request.method in ['PUT', 'DELETE']:
             return [IsAdminUser()]
-        return [AllowAny()]
+        return [IsAuthenticated()]
 
     def get_object(self, pk):
         try:
