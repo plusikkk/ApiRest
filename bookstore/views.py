@@ -6,8 +6,10 @@ from rest_framework.views import APIView
 from bookstore.models import Book, Author, Publisher
 from bookstore.serializers import BookSerializer, BookDetSerializer, AuthorSerialiser, AuthorDetSerializer, PublisherSerializer, PublisherDetSerializer
 from django.http import Http404
+import logging
 
 
+logger = logging.getLogger(__name__)
 class BooksList(APIView):
     def get_permissions(self):
         if self.request.method == 'POST':
@@ -23,7 +25,9 @@ class BooksList(APIView):
         serializer = BookDetSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            logger.info("book successfully created")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        logger.info("failed to create book")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class BookDetail(APIView):
@@ -36,6 +40,7 @@ class BookDetail(APIView):
         try:
             return Book.objects.get(pk=pk)
         except Book.DoesNotExist:
+            logger.warning(f"Publisher with ID={pk} not found (404)")
             raise Http404
 
     def get(self, request, pk):
@@ -71,7 +76,9 @@ class AuthorsList(APIView):
         serializer = AuthorDetSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            logger.info("author successfully created")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        logger.info("failed to create author")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AuthorDetail(APIView):
@@ -84,6 +91,7 @@ class AuthorDetail(APIView):
         try:
             return Author.objects.get(pk=pk)
         except Author.DoesNotExist:
+            logger.warning(f"Author with ID={pk} not found (404)")
             raise Http404
 
     def get(self, request, pk):
@@ -125,7 +133,9 @@ class PublishersList(APIView):
         serializer = PublisherDetSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            logger.info("publisher successfully created")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        logger.info("failed to create publisher")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PublisherDetail(APIView):
@@ -138,6 +148,7 @@ class PublisherDetail(APIView):
         try:
             return Publisher.objects.get(pk=pk)
         except Publisher.DoesNotExist:
+            logger.warning(f"Publisher with ID={pk} not found (404)")
             raise Http404
 
     def get(self, request, pk):
