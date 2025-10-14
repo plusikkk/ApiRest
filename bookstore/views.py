@@ -1,13 +1,21 @@
 from django.db.models import ProtectedError
 from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from bookstore.models import Book, Author, Publisher
 from bookstore.serializers import BookSerializer, BookDetSerializer, AuthorSerialiser, AuthorDetSerializer, PublisherSerializer, PublisherDetSerializer
 from django.http import Http404
+import logging
 
 
+logger = logging.getLogger(__name__)
 class BooksList(APIView):
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAdminUser()]
+        return [AllowAny()]
+
     def get(self, request):
         books = Book.objects.all()
         serializer = BookSerializer(books, many=True)
@@ -17,14 +25,22 @@ class BooksList(APIView):
         serializer = BookDetSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            logger.info("book successfully created")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        logger.info("failed to create book")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class BookDetail(APIView):
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'DELETE']:
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
+
     def get_object(self, pk):
         try:
             return Book.objects.get(pk=pk)
         except Book.DoesNotExist:
+            logger.warning(f"Publisher with ID={pk} not found (404)")
             raise Http404
 
     def get(self, request, pk):
@@ -46,6 +62,11 @@ class BookDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AuthorsList(APIView):
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAdminUser()]
+        return [AllowAny()]
+
     def get(self, request):
         authors = Author.objects.all()
         serializer = AuthorSerialiser(authors, many=True)
@@ -55,14 +76,22 @@ class AuthorsList(APIView):
         serializer = AuthorDetSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            logger.info("author successfully created")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        logger.info("failed to create author")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AuthorDetail(APIView):
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'DELETE']:
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
+
     def get_object(self, pk):
         try:
             return Author.objects.get(pk=pk)
         except Author.DoesNotExist:
+            logger.warning(f"Author with ID={pk} not found (404)")
             raise Http404
 
     def get(self, request, pk):
@@ -90,6 +119,11 @@ class AuthorDetail(APIView):
             )
 
 class PublishersList(APIView):
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAdminUser()]
+        return [AllowAny()]
+
     def get(self, request):
         publishers = Publisher.objects.all()
         serializer = PublisherSerializer(publishers, many=True)
@@ -99,14 +133,22 @@ class PublishersList(APIView):
         serializer = PublisherDetSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            logger.info("publisher successfully created")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        logger.info("failed to create publisher")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PublisherDetail(APIView):
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'DELETE']:
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
+
     def get_object(self, pk):
         try:
             return Publisher.objects.get(pk=pk)
         except Publisher.DoesNotExist:
+            logger.warning(f"Publisher with ID={pk} not found (404)")
             raise Http404
 
     def get(self, request, pk):
